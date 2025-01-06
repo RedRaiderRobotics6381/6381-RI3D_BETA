@@ -1,11 +1,6 @@
 {
   "HALProvider": {
     "Other Devices": {
-      "SPARK MAX [2]": {
-        "header": {
-          "open": true
-        }
-      },
       "SPARK MAX [4]": {
         "header": {
           "open": true
@@ -60,6 +55,7 @@
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
       "/LiveWindow/Ungrouped/Pigeon 2 [13]": "Gyro",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",

@@ -55,9 +55,14 @@ public final class Constants
     public static final int RIGHT_ELEVATOR_MOTOR_PORT = 14;
 
     public static final int START_POSE = 0;
-    public static final int TALL_POSE = 0;
-    public static final int SHORT_POSE = 0;
-    public static final int MIDDLE_POSE = 0;
+    public static final int TROUGH_POSE = 0;
+    public static final int REEF_LOW_POSE = 0;
+    public static final int REEF_MIDDLE_POSE = 0;
+    public static final int REEF_HIGH_POSE = 0;
+    public static final int ALGAE_SCORE_POSE = 0;
+    public static final int ALGAE_PICKUP_POSE = 0;
+    public static final int HUMAN_PLAYER_POSE = 0;
+
   }
 
   public static class ArmConstants {
@@ -74,5 +79,14 @@ public final class Constants
     public static final int CLOSED_ANGLE = 90;
     public static final int OPEN_ANGLE = 0;
 
+  }
+
+  public static class IntakeConstants {
+    public static final int LEFT_INTAKE_MOTOR_PORT = 16;
+    public static final int RIGHT_INTAKE_MOTOR_PORT = 17;
+
+    public static final double INTAKE_SPEED = 0.5;
+    public static final double OUTTAKE_SPEED = -0.5;
+    public static final double STOP_SPEED = 0;
   }
 }

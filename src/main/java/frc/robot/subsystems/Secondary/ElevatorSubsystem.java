@@ -3,26 +3,27 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems.Secondary;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.Robot;
-
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 // import com.revrobotics.spark.SparkSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.sim.SparkRelativeEncoderSim;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -43,11 +44,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double kLeaderOutputMax = 1.0, kFollowerOutputMax = 1.0, kFeederOutputMax = 1.0;
     private double kLeaderMaxRPM = 5676, kFollowerMaxRPM = 5676, kFeederMaxRPM = 5676;
     private double kLeaderMaxAccel = 10000, kFollowerMaxAccel = 10000, kFeederMaxAccel = 10000;
+    public DigitalInput limitSwitchL;
+    public DigitalInput limitSwitchR;
     
 
     public ElevatorSubsystem() {
-        leaderElevator = new SparkMax(21, MotorType.kBrushless);
-        followerElevator = new SparkMax(22, MotorType.kBrushless);
+        leaderElevator = new SparkMax(Constants.ElevatorConstants.LEFT_ELEVATOR_MOTOR_PORT, MotorType.kBrushless);
+        followerElevator = new SparkMax(Constants.ElevatorConstants.RIGHT_ELEVATOR_MOTOR_PORT, MotorType.kBrushless);
 
         SparkMaxConfig leaderConfig = new SparkMaxConfig();
         SparkMaxConfig followerConfig = new SparkMaxConfig();
@@ -123,126 +126,87 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
     
-    public Command startPosCmd() {
-    return this.startEnd(
-        () -> {
-            // leaderElevatorL.set(-0.25);
-            // feederLauncher.set(-0.25);
-            //leaderPIDController.setReference(Constants.ElevatorConstants.START_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-            
-            setElevatorHeight(Constants.ElevatorConstants.START_POSE);
-            if (Robot.isSimulation()) {
-                // leaderElevatorSim.setVelocity(-1000);
-                // followerElevatorSim.setVelocity(-1000);
-                // feederLauncherSim.setVelocity(-1000);
-                //followerPIDController.setReference(Constants.ElevatorConstants.START_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-
-                setElevatorHeight(Constants.ElevatorConstants.START_POSE);
-            }
-        },
-        () -> {
-            // leaderElevatorL.set(0);
-            // feederLauncher.set(0);
-            // leaderPIDController.setReference(Constants.ElevatorConstants.START_POSE, SparkMax.ControlType.kMAXMotionVelocityControl);
-            setElevatorHeight(Constants.ElevatorConstants.START_POSE);
-            if (Robot.isSimulation()) {
-                // leaderElevatorSim.setVelocity(0);
-                // followerElevatorSim.setVelocity(0);
-                // feederLauncherSim.setVelocity(0);
-                // followerPIDController.setReference(Constants.ElevatorConstants.START_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-                setElevatorHeight(Constants.ElevatorConstants.START_POSE);
-            }
-        });
-    }
-
-    public Command shortPosCmd() {
-    return this.startEnd(
-        () -> {
-            // leaderElevatorL.set(0.10);
-            // feederLauncher.set(0.10);
-            // leaderPIDController.setReference(Constants.ElevatorConstants.SHORT_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-
-            setElevatorHeight(Constants.ElevatorConstants.SHORT_POSE);
-            if (Robot.isSimulation()) {
-                // leaderElevatorSim.setVelocity(500);
-                // followerElevatorSim.setVelocity(500);
-                // feederLauncherSim.setVelocity(500);
-                // followerPIDController.setReference(Constants.ElevatorConstants.SHORT_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-                setElevatorHeight(Constants.ElevatorConstants.SHORT_POSE);
-            }
-        },
-        () -> {
-            // leaderElevatorL.set(0);
-            // feederLauncher.set(0);
-            // leaderPIDController.setReference(Constants.ElevatorConstants.SHORT_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-
-            setElevatorHeight(Constants.ElevatorConstants.SHORT_POSE);
-            if (Robot.isSimulation()) {
-                // leaderElevatorSim.setVelocity(0);
-                // followerElevatorSim.setVelocity(0);
-                // feederLauncherSim.setVelocity(0);
-                // followerPIDController.setReference(Constants.ElevatorConstants.MIDDLE_POSE, SparkMax.ControlType.kVelocity);
-                setElevatorHeight(Constants.ElevatorConstants.SHORT_POSE);
-            }
-        });
-    }
-
-    public Command middlePosCmd() {
-        return this.startEnd(
+    public Command ElevatorPosCmd(double position) {
+        return this.run(
             () -> {
-                // leaderElevatorL.set(0.10);
-                // feederLauncher.set(0.10);
-                // leaderPIDController.setReference(Constants.ElevatorConstants.MIDDLE_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-                setElevatorHeight(Constants.ElevatorConstants.MIDDLE_POSE);
-                if (Robot.isSimulation()) {
-                    // leaderElevatorSim.setVelocity(500);
-                    // followerElevatorSim.setVelocity(500);
-                    // feederLauncherSim.setVelocity(500);
-                    setElevatorHeight(Constants.ElevatorConstants.MIDDLE_POSE);
-                }
-            },
-            () -> {
-                // leaderElevatorL.set(0);
-                // feederLauncher.set(0);
-                // leaderPIDController.setReference(Constants.ElevatorConstants.MIDDLE_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-                setElevatorHeight(Constants.ElevatorConstants.MIDDLE_POSE);
-                if (Robot.isSimulation()) {
-                    // leaderElevatorSim.setVelocity(0);
-                    // followerElevatorSim.setVelocity(0);
-                    // feederLauncherSim.setVelocity(0);
-                    setElevatorHeight(Constants.ElevatorConstants.MIDDLE_POSE);
-                }
-            });
+                // rotateMotorL.set(-0.25);
+                // feederLauncher.set(-0.25);
+                //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+                if(limitSwitchL.get() && limitSwitchR.get() == false){
+                    setElevatorHeight(position);
+            }}
+          );
         }
-
-        public Command tallPosCmd() {
-            return this.startEnd(
-                () -> {
-                    // leaderElevatorL.set(0.10);
-                    // feederLauncher.set(0.10);
-                    // leaderPIDController.setReference(Constants.ElevatorConstants.TALL_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-                    setElevatorHeight(Constants.ElevatorConstants.TALL_POSE);
-                    if (Robot.isSimulation()) {
-                        // leaderElevatorSim.setVelocity(500);
-                        // followerElevatorSim.setVelocity(500);
-                        // feederLauncherSim.setVelocity(500);
-                        setElevatorHeight(Constants.ElevatorConstants.TALL_POSE);
-                    }
-                },
-                () -> {
-                    // leaderElevatorL.set(0);
-                    // feederLauncher.set(0);
-                    // leaderPIDController.setReference(Constants.ElevatorConstants.TALL_POSE, SparkMax.ControlType.kMAXMotionPositionControl);
-                    setElevatorHeight(Constants.ElevatorConstants.TALL_POSE);
-                    if (Robot.isSimulation()) {
-                        // leaderElevatorSim.setVelocity(0);
-                        // followerElevatorSim.setVelocity(0);
-                        // feederLauncherSim.setVelocity(0);
-                        setElevatorHeight(Constants.ElevatorConstants.TALL_POSE);
-                    }
-                });
-            }
-    
+    // public Command TroughPoseCmd() {
+    //     return this.run(
+    //         () -> {
+    //             // rotateMotorL.set(-0.25);
+    //             // feederLauncher.set(-0.25);
+    //             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+    //             setElevatorHeight(Constants.ElevatorConstants.TROUGH_POSE);
+    //         }
+    //       );
+    //     }
+    // public Command ReefLowPoseCmd() {
+    //     return this.run(
+    //         () -> {
+    //             // rotateMotorL.set(-0.25);
+    //             // feederLauncher.set(-0.25);
+    //             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+    //             setElevatorHeight(Constants.ElevatorConstants.REEF_LOW_POSE);
+    //         }
+    //       );
+    //     }
+    // public Command ReefMiddlePoseCmd() {
+    //     return this.run(
+    //         () -> {
+    //             // rotateMotorL.set(-0.25);
+    //             // feederLauncher.set(-0.25);
+    //             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+    //             setElevatorHeight(Constants.ElevatorConstants.REEF_MIDDLE_POSE);
+    //         }
+    //       );
+    //     }
+    // public Command ReefHighPoseCmd() {
+    //     return this.run(
+    //         () -> {
+    //             // rotateMotorL.set(-0.25);
+    //             // feederLauncher.set(-0.25);
+    //             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+    //             setElevatorHeight(Constants.ElevatorConstants.REEF_HIGH_POSE);
+    //         }
+    //       );
+    //     }
+    // public Command AlgaeScorePoseCmd() {
+    //     return this.run(
+    //         () -> {
+    //             // rotateMotorL.set(-0.25);
+    //             // feederLauncher.set(-0.25);
+    //             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+    //             setElevatorHeight(Constants.ElevatorConstants.ALGAE_SCORE_POSE);
+    //         }
+    //       );
+    //     }
+    // public Command AlgaePickUpPoseCmd() {
+    //     return this.run(
+    //         () -> {
+    //             // rotateMotorL.set(-0.25);
+    //             // feederLauncher.set(-0.25);
+    //             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+    //             setElevatorHeight(Constants.ElevatorConstants.ALGAE_PICKUP_POSE);
+    //         }
+    //       );
+    //     }
+    // public Command HumanPlayerPoseCmd() {
+    //     return this.run(
+    //         () -> {
+    //             // rotateMotorL.set(-0.25);
+    //             // feederLauncher.set(-0.25);
+    //             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
+    //             setElevatorHeight(Constants.ElevatorConstants.HUMAN_PLAYER_POSE);
+    //         }
+    //       );
+    //     }
 
     @Override
     public void simulationPeriodic() {

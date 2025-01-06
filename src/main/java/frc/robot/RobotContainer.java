@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,10 +31,11 @@ public class RobotContainer
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandXboxController driverXbox = new CommandXboxController(0);
+  final         CommandXboxController engineerXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve/neo"));
-  // private final ElevatorSubsystem     elevatorSubsystem = new ElevatorSubsystem();
+  private final ElevatorSubsystem     elevatorSubsystem = new ElevatorSubsystem();
   // Applies deadbands and inverts controls because joysticks
   // are back-right positive while robot
   // controls are front-left positive
@@ -100,11 +100,11 @@ public class RobotContainer
   // Derive the heading axis with math!
   SwerveInputStream driveDirectAngleSim     = driveAngularVelocitySim.copy()
                                                                      .withControllerHeadingAxis(() -> Math.sin(
-                                                                                                    driverXbox.getRawAxis(
-                                                                                                        2) * Math.PI) * (Math.PI * 2),
+                                                                                                    driverXbox.getRightX( //changed from RawAxis(2)
+                                                                                                        ) * Math.PI) * (Math.PI * 2),
                                                                                                 () -> Math.cos(
-                                                                                                    driverXbox.getRawAxis(
-                                                                                                        2) * Math.PI) *
+                                                                                                    driverXbox.getRightX( //changed from RawAxis(2)
+                                                                                                        ) * Math.PI) *
                                                                                                       (Math.PI * 2))
                                                                      .headingWhile(true);
 
@@ -132,8 +132,9 @@ public class RobotContainer
   {
     // (Condition) ? Return-On-True : Return-on-False
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ?
-                                driveFieldOrientedDirectAngle :
-                                driveFieldOrientedDirectAngleSim);
+                                driveFieldOrientedAnglularVelocity :
+                                driveFieldOrientedAnglularVelocity
+                                );
 
     if (Robot.isSimulation())
     {
@@ -153,7 +154,6 @@ public class RobotContainer
     } else
     {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      //driverXbox.x().onTrue(Commands.runOnce(elevatorSubsystem::tallPosCmd));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverXbox.b().whileTrue(
           drivebase.driveToPose(
@@ -164,6 +164,14 @@ public class RobotContainer
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(Commands.none());
+
+      engineerXbox.povDown().onTrue(elevatorSubsystem.ElevatorPosCmd(Constants.ElevatorConstants.START_POSE));
+      engineerXbox.povLeft().onTrue(elevatorSubsystem.ElevatorPosCmd(Constants.ElevatorConstants.REEF_LOW_POSE));
+      engineerXbox.povUp().onTrue(elevatorSubsystem.ElevatorPosCmd(Constants.ElevatorConstants.REEF_MIDDLE_POSE));
+      engineerXbox.povUpRight().onTrue(elevatorSubsystem.ElevatorPosCmd(Constants.ElevatorConstants.REEF_HIGH_POSE));
+
+
+
     }
 
   }
