@@ -14,12 +14,12 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 //import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
-import com.revrobotics.spark.config.SoftLimitConfig;
+// import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+// import com.revrobotics.spark.config.SoftLimitConfig;
 //import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
+// import com.revrobotics.spark.config.SparkMaxConfig;
 
 // import com.revrobotics.servohub.ServoHub;
 // import com.revrobotics.servohub.config.ServoHubConfig;
@@ -42,11 +42,12 @@ public class IntakeSubsystem extends SubsystemBase {
   public SparkRelativeEncoderSim followerEncoderSim;
   private double kLeaderP = 0.0005, kLeaderI = 0.0, kLeaderD = 0.0;
   private double kFollowerP = 0.0005, kFollowerI = 0.0, kFollowerD = 0.0;
-  private double kLeaderFF = 0.0005, kFollowerFF = 0.0005, kFeederFF = 0.0005;
-  private double kLeaderOutputMin = -1.0, kFollowerOutputMin = -1.0, kFeederOutputMin = -1.0;
-  private double kLeaderOutputMax = 1.0, kFollowerOutputMax = 1.0, kFeederOutputMax = 1.0;
-  private double kLeaderMaxRPM = 5676, kFollowerMaxRPM = 5676, kFeederMaxRPM = 5676;
-  private double kLeaderMaxAccel = 10000, kFollowerMaxAccel = 10000, kFeederMaxAccel = 10000;
+  private double kLeaderFF = 0.0005, kFollowerFF = 0.0005;
+  private double kLeaderOutputMin = -1.0, kFollowerOutputMin = -1.0;
+  private double kLeaderOutputMax = 1.0, kFollowerOutputMax = 1.0;
+  //TODO: Find the max RPM and max acceleration for the intake motors
+  private double kLeaderMaxRPM = 5676, kFollowerMaxRPM = 5676;
+  private double kLeaderMaxAccel = 10000, kFollowerMaxAccel = 10000;
   
   public IntakeSubsystem() {
         leaderIntake = new SparkFlex(Constants.IntakeConstants.LEFT_INTAKE_MOTOR_PORT, MotorType.kBrushless);
@@ -118,6 +119,14 @@ public class IntakeSubsystem extends SubsystemBase {
         }
       );
   }
+
+  public Command HoldCmd() {
+    return this.runOnce(
+        () -> {
+            runIntake(Constants.IntakeConstants.HOLD_SPEED);
+        }
+      );
+  }  
 
   public Command StopCmd() {
     return this.runOnce(

@@ -9,7 +9,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.RotateConstants;
 
 import com.revrobotics.spark.SparkMax;
 // import com.revrobotics.spark.SparkSim;
@@ -29,28 +29,28 @@ import com.revrobotics.spark.SparkClosedLoopController;
 public class RotateSubsystem extends SubsystemBase {
 
     public SparkMax rotateMotor;
-    private RelativeEncoder rotateEncoder;
+    private SparkAbsoluteEncoder rotateEncoder;
     public SparkClosedLoopController  rotatePIDController;
     public SparkMaxSim rotateMotorSim;
     public SparkRelativeEncoderSim rotateEncoderSim;
     private double kLeaderP = 0.0005, kLeaderI = 0.0, kLeaderD = 0.0;
-    private double kLeaderFF = 0.0005, kFollowerFF = 0.0005, kFeederFF = 0.0005;
-    private double kLeaderOutputMin = -1.0, kFollowerOutputMin = -1.0, kFeederOutputMin = -1.0;
-    private double kLeaderOutputMax = 1.0, kFollowerOutputMax = 1.0, kFeederOutputMax = 1.0;
-    private double kLeaderMaxRPM = 5676, kFollowerMaxRPM = 5676, kFeederMaxRPM = 5676;
-    private double kLeaderMaxAccel = 10000, kFollowerMaxAccel = 10000, kFeederMaxAccel = 10000;
+    private double kLeaderFF = 0.0005;
+    private double kLeaderOutputMin = -1.0;
+    private double kLeaderOutputMax = 1.0;
+    private double kLeaderMaxRPM = 5676.0;
+    private double kLeaderMaxAccel = 10000.0;
     
 
     public RotateSubsystem() {
-        rotateMotor = new SparkMax(21, MotorType.kBrushless);
-        SparkMaxConfig leaderConfig = new SparkMaxConfig();
-        SoftLimitConfig leaderSoftLimit = new SoftLimitConfig();
+        rotateMotor = new SparkMax(Constants.RotateConstants.ARM_MOTOR_PORT, MotorType.kBrushless);
+        SparkMaxConfig rotateConfig = new SparkMaxConfig();
+        SoftLimitConfig rotateSoftLimit = new SoftLimitConfig();
 
         rotatePIDController = rotateMotor.getClosedLoopController();
 
-        rotateEncoder = rotateMotor.getEncoder();
+        rotateEncoder = rotateMotor.getAbsoluteEncoder();
 
-        leaderConfig
+        rotateConfig
             .inverted(false)
             .voltageCompensation(12.0)
             .smartCurrentLimit(80)
@@ -62,13 +62,13 @@ public class RotateSubsystem extends SubsystemBase {
                 .maxMotion
                     .maxAcceleration(kLeaderMaxAccel)
                     .maxVelocity(kLeaderMaxRPM);
-        rotateMotor.configure(leaderConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rotateMotor.configure(rotateConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         //TODO: Add soft limits
-        leaderSoftLimit
+        rotateSoftLimit
         .forwardSoftLimit(1) 
         .reverseSoftLimit(1)
-        .apply(leaderSoftLimit);
+        .apply(rotateSoftLimit);
             
         // Add motors to the simulation
         if (Robot.isSimulation()) {
@@ -87,59 +87,16 @@ public class RotateSubsystem extends SubsystemBase {
 
     }
     
-    public Command ForwardCmd() {
-    return this.startEnd(
+    public Command ForwardCmd(double dersiredAngle) {
+    return this.run(
         () -> {
             // rotateMotorL.set(-0.25);
             // feederLauncher.set(-0.25);
             //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
-            setArm(Constants.ArmConstants.ARM_OUT_POSE);
-
-        },
-        () -> {
-            // rotateMotorL.set(0);
-            // feederLauncher.set(0);
-            //rotatePIDController.setReference(0, SparkMax.ControlType.kVelocity);
-            setArm(Constants.ArmConstants.ARM_OUT_POSE);
+            setArm(dersiredAngle);
         });
     }
 
-    public Command MiddleCmd() {
-    return this.startEnd(
-        () -> {
-            // rotateMotorL.set(0.10);
-            // feederLauncher.set(0.10);
-            //rotatePIDController.setReference(500, SparkMax.ControlType.kVelocity);
-            setArm(Constants.ArmConstants.ARM_MIDDLE_POSE);
-        },
-        () -> {
-            // rotateMotorL.set(0);
-            // feederLauncher.set(0);
-            // rotatePIDController.setReference(0, SparkMax.ControlType.kVelocity);
-            // rotatePIDController.setReference(0, SparkMax.ControlType.kVelocity);
-            setArm(Constants.ArmConstants.ARM_MIDDLE_POSE);
-
-        });
-    }
-
-    public Command UpCmd() {
-      return this.startRun(
-          () -> {
-              // rotateMotorL.set(0.10);
-              // feederLauncher.set(0.10);
-              //rotatePIDController.setReference(500, SparkMax.ControlType.kVelocity);
-              setArm(Constants.ArmConstants.ARM_UP_POSE);
-          },
-          () -> {
-              // rotateMotorL.set(0);
-              // feederLauncher.set(0);
-              // rotatePIDController.setReference(0, SparkMax.ControlType.kVelocity);
-              // rotatePIDController.setReference(0, SparkMax.ControlType.kVelocity);
-              setArm(Constants.ArmConstants.ARM_UP_POSE);
-  
-          });
-      }
-    
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
@@ -155,7 +112,7 @@ public class RotateSubsystem extends SubsystemBase {
     if (Robot.isSimulation()) {
         SmartDashboard.putNumber("Lead Launch Wheel Speed (RPM)", rotateEncoderSim.getPosition());
     } else {
-        SmartDashboard.putNumber("Lead Launch Wheel Speed (RPM)", rotateEncoder.getPosition());
+        SmartDashboard.putNumber("Rotate Encoder Absolute Value", rotateEncoder.getPosition());
     }
     }
 }

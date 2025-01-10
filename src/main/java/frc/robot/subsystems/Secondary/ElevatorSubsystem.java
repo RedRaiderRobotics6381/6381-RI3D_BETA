@@ -39,13 +39,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     public SparkRelativeEncoderSim followerEncoderSim;
     private double kLeaderP = 0.0005, kLeaderI = 0.0, kLeaderD = 0.0;
     private double kFollowerP = 0.0005, kFollowerI = 0.0, kFollowerD = 0.0;
-    private double kLeaderFF = 0.0005, kFollowerFF = 0.0005, kFeederFF = 0.0005;
-    private double kLeaderOutputMin = -1.0, kFollowerOutputMin = -1.0, kFeederOutputMin = -1.0;
-    private double kLeaderOutputMax = 1.0, kFollowerOutputMax = 1.0, kFeederOutputMax = 1.0;
-    private double kLeaderMaxRPM = 5676, kFollowerMaxRPM = 5676, kFeederMaxRPM = 5676;
-    private double kLeaderMaxAccel = 10000, kFollowerMaxAccel = 10000, kFeederMaxAccel = 10000;
-    public DigitalInput limitSwitchL;
-    public DigitalInput limitSwitchR;
+    private double kLeaderFF = 0.0005, kFollowerFF = 0.0005;
+    private double kLeaderOutputMin = -1.0, kFollowerOutputMin = -1.0;
+    private double kLeaderOutputMax = 1.0, kFollowerOutputMax = 1.0;
+    private double kLeaderMaxRPM = 5676, kFollowerMaxRPM = 5676;
+    private double kLeaderMaxAccel = 10000, kFollowerMaxAccel = 10000;
+    public DigitalInput limitSwitchLow;
+    // public DigitalInput limitSwitchHigh;
     
 
     public ElevatorSubsystem() {
@@ -61,7 +61,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         followerPIDController = followerElevator.getClosedLoopController();
 
         leaderEncoder = leaderElevator.getEncoder();
-        followerEncoder = followerElevator.getEncoder();
+        // followerEncoder = followerElevator.getEncoder();
 
         leaderConfig
             .inverted(false)
@@ -80,7 +80,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         //TODO: Add soft limits
         leaderSoftLimit
         .forwardSoftLimit(1) 
-        .reverseSoftLimit(1)
         .apply(leaderSoftLimit);
 
         followerConfig
@@ -100,7 +99,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         //TODO: Add soft limits
         followerSoftLimit
         .forwardSoftLimit(1) 
-        .reverseSoftLimit(1)
         .apply(leaderSoftLimit);
 
         // Add motors to the simulation
@@ -132,7 +130,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 // rotateMotorL.set(-0.25);
                 // feederLauncher.set(-0.25);
                 //rotatePIDController.setReference(-1000, SparkMax.ControlType.kMAXMotionPositionControl);
-                if(limitSwitchL.get() && limitSwitchR.get() == false){
+                if(!limitSwitchLow.get()){
                     setElevatorHeight(position);
             }}
           );
@@ -226,8 +224,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Lead Launch Wheel Speed (RPM)", leaderEncoderSim.getPosition());
         SmartDashboard.putNumber("Follower Launch Wheel Speed (RPM)", followerEncoderSim.getPosition());
     } else {
-        SmartDashboard.putNumber("Lead Launch Wheel Speed (RPM)", leaderEncoder.getPosition());
-        SmartDashboard.putNumber("Follower Launch Wheel Speed (RPM)", followerEncoder.getPosition());
+        SmartDashboard.putNumber("Leader Encoder Position", leaderEncoder.getPosition());
+        SmartDashboard.putNumber("Follower Encoder Position", followerEncoder.getPosition());
     }
     }
 }
